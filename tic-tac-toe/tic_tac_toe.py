@@ -19,7 +19,7 @@ class Square(p.sprite.Sprite):
         self.rect.center = (self.x, self.y)
 
     def clicked(self, x_value, y_value):
-        global turn
+        global turn, won
         if self.content == '':
             if self.rect.collidepoint(x_value, y_value):
                 self.content = turn
@@ -29,16 +29,48 @@ class Square(p.sprite.Sprite):
                     self.image = x_image
                     self.image = p.transform.scale(self.image, (self.width, self.height))
                     turn = 'o'
-                    CompMove()
+                    checkWinner('x')
+                    if not won:
+                        CompMove()
                 
                 else:
                     self.image = o_image
                     self.image = p.transform.scale(self.image, (self.width, self.height))
                     turn = 'x'
+                    checkWinner('o')
+
+def checkWinner(player):
+    global background, won
+    for i in range(8):
+        if board[winners[i][0]] == player and board[winners[i][1]] == player and board[winners[i][2]] == player:
+            won = True
+            break
+    if won:
+        Update()
+        square_group.empty()
+        background = p.image.load(player.upper()+' Wins.png')
+        background = p.transform.scale(background, (WIDTH, HEIGHT))
+
+def Winner(player):
+    global compMove, move
+    for i in range(8):
+        if board[winners[i][0]] == player and board[winners[i][1]] == player and board[winners[i][2]] == '':
+            compMove = winners[i][2]
+            move = False
+        elif board[winners[i][0]] == player and board[winners[i][1]] == '' and board[winners[i][2]] == player:
+            compMove = winners[i][1]
+            move = False
+        elif board[winners[i][0]] == '' and board[winners[i][1]] == player and board[winners[i][2]] == player:
+            compMove = winners[i][0]
+            move = False
 
 def CompMove():
     global move
     move = True
+    if move:
+        Winner('o')
+    if move:
+        Winner('x')
     if move:
         checkCenter()
     if move:
@@ -94,10 +126,13 @@ background = p.image.load('Background.png')
 background = p.transform.scale(background, (WIDTH, HEIGHT))
 
 move = True
+won = False
 compMove = 5
 
 square_group = p.sprite.Group()
 squares = []
+
+winners = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [1, 4, 7], [2, 5, 8], [3, 6, 9], [1, 5, 9], [3, 5, 7]]
 board = ['' for i in range(10)]
 
 
