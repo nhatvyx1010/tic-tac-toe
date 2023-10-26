@@ -1,4 +1,5 @@
 import pygame as p
+import time
 
 p.init()
 
@@ -40,13 +41,15 @@ class Square(p.sprite.Sprite):
                     checkWinner('o')
 
 def checkWinner(player):
-    global background, won
+    global background, won, startX, startY, endX, endY
     for i in range(8):
         if board[winners[i][0]] == player and board[winners[i][1]] == player and board[winners[i][2]] == player:
             won = True
+            getPos(winners[i][0], winners[i][2])
             break
     if won:
         Update()
+        drawLine(startX, startY, endX, endY)
         square_group.empty()
         background = p.image.load(player.upper()+' Wins.png')
         background = p.transform.scale(background, (WIDTH, HEIGHT))
@@ -65,12 +68,14 @@ def Winner(player):
             move = False
 
 def CompMove():
-    global move
+    global move, background
     move = True
     if move:
         Winner('o')
     if move:
         Winner('x')
+    if move:
+        checkDangerPos()
     if move:
         checkCenter()
     if move:
@@ -81,6 +86,52 @@ def CompMove():
         for square in squares:
             if square.number == compMove:
                 square.clicked(square.x, square.y)
+    else:
+        Update()
+        time.sleep(1)
+        square_group.empty()
+        background = p.image.load('Tie Game.png')
+        background = p.transform.scale(background, (WIDTH, HEIGHT))
+
+def checkDangerPos():
+    global move, compMove
+
+    if board == dangerPos1:
+        compMove = 2
+        move = False
+
+    elif board == dangerPos2:
+        compMove = 4
+        move = False
+
+    elif board == dangerPos3:
+        compMove = 1
+        move = False
+
+    elif board == dangerPos4:
+        compMove = 4
+        move = False
+
+    elif board == dangerPos5:
+        compMove = 7
+        move = False
+
+    elif board == dangerPos6:
+        compMove = 9
+        move = False
+
+    elif board == dangerPos7:
+        compMove = 9
+        move = False
+
+    elif board == dangerPos8:
+        compMove = 7
+        move = False
+
+    elif board == dangerPos9:
+        compMove = 9
+        move = False
+
 
 def checkCenter():
     global compMove, move
@@ -104,6 +155,21 @@ def checkEdge():
             compMove = i
             move = False
             break
+
+def getPos(n1, n2):
+    global startX, startY, endX, endY
+    for sqs in squares:
+        if sqs.number == n1:
+            startX = sqs.x
+            startY = sqs.y
+        elif sqs.number == n2:
+            endX = sqs.x
+            endY = sqs.y
+
+def drawLine(x1, x2, y1, y2):
+    p.draw.line(win, (0, 0, 0), (x1, y1), (x2, y2), 15)
+    p.display.update()
+    time.sleep(2)
 
 def Update():
     win.blit(background, (0, 0))
@@ -135,6 +201,21 @@ squares = []
 winners = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [1, 4, 7], [2, 5, 8], [3, 6, 9], [1, 5, 9], [3, 5, 7]]
 board = ['' for i in range(10)]
 
+
+dangerPos1 = ['', 'x', '', '', '', 'o', '', '', '', 'x']
+dangerPos2 = ['', '', '', 'x', '', 'o', '', 'x', '', '']
+dangerPos3 = ['', '', '', 'x', 'x', 'o', '', '', '', '']
+dangerPos4 = ['', 'x', '', '', '', 'o', 'x', '', '', '']
+dangerPos5 = ['', '', '', '', 'x', 'o', '', '', '', 'x']
+dangerPos6 = ['', '', '', '', '', 'o', 'x', 'x', '', '']
+dangerPos7 = ['', '', '', '', '', 'o', 'x', '', 'x', '']
+dangerPos8 = ['', 'x', '', '', '', 'o', '', '', 'x', '']
+dangerPos9 = ['', '', '', 'x', '', 'o', '', '', 'x', '']
+
+startX = 0
+startY = 0
+endX = 0
+endY = 0
 
 num = 1
 for y in range(1, 4):
